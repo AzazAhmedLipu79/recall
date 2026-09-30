@@ -1,0 +1,58 @@
+[package]
+name = "recall-app"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Recall desktop UI (Tauri 2 host process)"
+
+[[bin]]
+name = "recall-app"
+path = "src/main.rs"
+
+[dependencies]
+# Internal engine
+recall-core.workspace = true
+recall-db.workspace = true
+recall-storage.workspace = true
+recall-hash.workspace = true
+recall-metadata.workspace = true
+recall-importer.workspace = true
+recall-verify.workspace = true
+recall-backup.workspace = true
+
+# Tauri host (pinned; cargo resolves to a compatible 2.x).
+# `protocol-asset` enables the built-in `asset://` protocol that the
+# webview uses to stream archived media bytes via `convertFileSrc`.
+tauri = { version = "2", features = ["protocol-asset"] }
+tauri-build = { version = "2", default-features = false }
+
+# First-run wizard uses `tauri-plugin-dialog` for the archive-location
+# folder picker and `tauri-plugin-store` to persist the wizard-seen flag
+# between launches. Both are official Tauri 2 plugins.
+tauri-plugin-dialog = "2"
+tauri-plugin-store = "2"
+
+# Host-side error reporting + chrono timestamps
+anyhow = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+rusqlite = { workspace = true }
+camino = { workspace = true }
+
+# File-based logging (info level by default, override via
+# RUST_LOG=recall_app=debug or similar).
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+tracing-appender = { workspace = true }
+
+[build-dependencies]
+tauri-build = { version = "2", default-features = false , features = [] }
+
+[features]
+# This feature is used for production builds or when a dev server is not
+# available, e.g., GitHub Pages or when running locally without a dev server.
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

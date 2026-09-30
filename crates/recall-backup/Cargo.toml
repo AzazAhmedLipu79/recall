@@ -1,0 +1,27 @@
+[package]
+name = "recall-backup"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]
+recall-core = { workspace = true }
+recall-db = { workspace = true }
+recall-storage = { workspace = true }
+recall-hash = { workspace = true }
+sha2 = { workspace = true }
+hex = { workspace = true }
+serde = { workspace = true }
+thiserror = { workspace = true }
+chrono = { workspace = true }
+indicatif = { workspace = true }
+walkdir = { workspace = true }
+rusqlite = { workspace = true }
+zip = { workspace = true }
+camino = { workspace = true }
+
+[dev-dependencies]
+tempfile = { workspace = true }
+recall-importer = { workspace = true }

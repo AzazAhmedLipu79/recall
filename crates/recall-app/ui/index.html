@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="icon-32.png" />
+  <title>Recall</title>
+  <link rel="stylesheet" href="./css/tokens.css" />
+  <link rel="stylesheet" href="./css/base.css" />
+  <link rel="stylesheet" href="./css/layout.css" />
+  <link rel="stylesheet" href="./css/components.css" />
+  <link rel="stylesheet" href="./css/themes.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <img src="icon-64.png" alt="" />
+        <span class="name">Recall</span>
+      </div>
+      <div class="spacer"></div>
+      <nav>
+        <button id="btn-library" class="active">Library</button>
+        <button id="btn-import">Import</button>
+        <button id="btn-settings">Settings</button>
+      </nav>
+    </header>
+
+    <aside class="sidebar">
+      <div class="section">
+        <h3>Library</h3>
+        <ul class="nav-list" id="kind-filters">
+          <li class="nav-item active" data-kind="">All<span class="count" id="cnt-all">–</span></li>
+          <li class="nav-item" data-kind="photo">Photos<span class="count" id="cnt-photo">–</span></li>
+          <li class="nav-item" data-kind="video">Videos<span class="count" id="cnt-video">–</span></li>
+          <li class="nav-item" data-kind="audio">Audio<span class="count" id="cnt-audio">–</span></li>
+          <li class="nav-item" data-kind="document">Documents<span class="count" id="cnt-document">–</span></li>
+        </ul>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <h3>Albums</h3>
+          <button class="new-album" id="new-album-btn" title="New album" aria-label="New album">+</button>
+        </div>
+        <ul class="nav-list" id="album-list">
+          <li class="empty">No albums yet.</li>
+        </ul>
+      </div>
+    </aside>
+
+    <main class="main" id="main">
+      <!-- LIBRARY view -->
+      <section id="view-library" class="view">
+        <div class="searchbar">
+          <input id="q" type="text" placeholder="Search descriptions, filenames…" />
+          <select id="album-pick">
+            <option value="">Any album</option>
+          </select>
+          <input id="limit" type="number" value="200" min="1" max="2000" />
+          <label><input type="checkbox" id="has-loc" /> Has location</label>
+          <button class="btn-primary" id="run-search">Search</button>
+        </div>
+        <div id="results-meta" class="small-muted" style="margin-bottom:0.5rem;"></div>
+        <div id="results"></div>
+      </section>
+
+      <!-- IMPORT view -->
+      <section id="view-import" class="view hidden">
+        <h2>Import</h2>
+        <div class="card">
+          <div class="dropzone" id="dropzone">
+            <div class="big">Drag a folder here</div>
+            <div class="small">or pick one below — anything you drop lands here automatically</div>
+            <div class="picked-path hidden" id="dropzone-path"></div>
+          </div>
+          <div class="import-form">
+            <input id="import-source" type="text" placeholder="/path/to/folder (or takeout folder)" />
+            <button class="pick" id="btn-pick-folder" title="Open the macOS folder picker">Choose folder…</button>
+            <div class="mode" id="import-mode">
+              <button class="active" data-mode="takeout">Takeout</button>
+              <button data-mode="folder">Plain folder</button>
+            </div>
+            <input id="import-label" type="text" placeholder="Label (optional)" />
+            <button class="run" id="run-import">Run import</button>
+          </div>
+          <div id="import-progress" class="hidden">
+            <div class="progressbar"><div class="fill" id="progress-fill"></div></div>
+            <div class="progress-stats">
+              <span class="stat ok">Imported <strong id="stat-imported">0</strong></span>
+              <span class="stat dup">Duplicates <strong id="stat-dup">0</strong></span>
+              <span class="stat err">Failed <strong id="stat-failed">0</strong></span>
+              <span class="stat nowrap">ETA <strong id="stat-eta">–</strong></span>
+            </div>
+            <div class="progress-log" id="progress-log"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SETTINGS view -->
+      <section id="view-settings" class="view hidden">
+        <h2>Settings</h2>
+        <div class="card">
+          <h3>Archive</h3>
+          <div class="desc">
+            Where your library lives on disk. This is the single folder that holds your
+            catalog (<code>archive.db</code>), your original files (<code>store/</code>),
+            and the rolling logs (<code>logs/</code>).
+          </div>
+          <div class="archive-path">
+            <code id="archive-path-text">…</code>
+            <button id="archive-show" class="archive-action" title="Reveal this folder in Finder">📁 Show in Finder</button>
+            <button id="archive-move" class="archive-action" title="Move the archive to a new folder">↗ Move…</button>
+            <button id="archive-switch" class="archive-action" title="Open a different existing archive, or pick a folder to copy into">⇄ Switch archive…</button>
+          </div>
+          <div class="archive-stats small-muted" id="archive-stats">…</div>
+          <div id="move-archive-panel" class="move-archive hidden">
+            <div class="row">
+              <input id="move-archive-dest" type="text" placeholder="/path/to/new/location" />
+              <button id="move-archive-pick" class="pick" title="Open the macOS folder picker">Choose folder…</button>
+            </div>
+            <label class="checkbox-row">
+              <input type="checkbox" id="move-archive-delete" />
+              <span>Delete the old archive after a successful copy <span class="small-muted">(irreversible)</span></span>
+            </label>
+            <div class="row">
+              <button id="move-archive-run" class="btn-primary">Move archive</button>
+              <button id="move-archive-cancel" class="archive-action">Cancel</button>
+              <span id="move-archive-result" class="small-muted"></span>
+            </div>
+            <div id="move-archive-progress" class="hidden">
+              <div class="progressbar"><div class="fill" id="move-archive-fill"></div></div>
+              <div class="progress-stats">
+                <span class="stat">Files <strong id="move-archive-files">0</strong></span>
+                <span class="stat">Bytes <strong id="move-archive-bytes">0</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Verify</h3>
+          <div class="desc">Re-hashes every archived object against the source paths.</div>
+          <div class="row">
+            <button id="run-verify">Run verify</button>
+            <span id="verify-result" class="small-muted"></span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Backup</h3>
+          <div class="desc">Copy archive contents to a local folder.</div>
+          <div class="row">
+            <input id="backup-dest" type="text" placeholder="/path/to/backup" />
+            <button id="run-backup">Run backup</button>
+            <span id="backup-result" class="small-muted"></span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Export</h3>
+          <div class="desc">Bundle the entire archive into a single .zip file. Original filenames, deflate-compressed, includes archive.db so the bundle is self-contained.</div>
+          <div class="row">
+            <input id="export-dest" type="text" placeholder="/path/to/export.zip" />
+            <button id="run-export">Export</button>
+            <span id="export-result" class="small-muted"></span>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Recent imports</h3>
+          <pre id="imports-list" class="progress-log" style="max-height:200px;"></pre>
+        </div>
+        <div class="card">
+          <h3>Diagnostics</h3>
+          <div class="desc">If something goes wrong, these logs help you attach context to a bug report. Nothing leaves your machine unless you copy it yourself.</div>
+          <div class="row">
+            <label class="checkbox-row">
+              <input type="checkbox" id="js-error-logging" />
+              <span>Log JavaScript errors locally to <code>logs/js-errors.log</code></span>
+            </label>
+          </div>
+          <div class="row">
+            <button id="reveal-logs">Show logs folder in Finder</button>
+            <span class="small-muted">Rust trace files live in the same folder.</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="statusbar">
+      <span class="pill" id="status-summary">…</span>
+      <button id="status-archive" class="archive-badge" type="button" title="" aria-label="Show archive folder in Finder">
+        <span class="archive-badge-icon" aria-hidden="true">📁</span>
+        <span class="archive-badge-path" id="status-archive-path">…</span>
+        <span class="archive-badge-size small-muted" id="status-archive-size"></span>
+      </button>
+    </footer>
+  </div>
+
+  <!-- Inspector overlay -->
+  <div id="inspector-backdrop" class="inspector-backdrop"></div>
+  <aside id="inspector" class="inspector" role="dialog" aria-modal="true" aria-labelledby="ins-title">
+    <div class="header">
+      <div class="title" id="ins-title">…</div>
+      <button id="ins-close" title="Close (Esc)">×</button>
+    </div>
+    <div class="preview" id="ins-preview">
+      <div class="ph">Loading…</div>
+    </div>
+    <div class="body">
+      <h4>File</h4>
+      <dl id="ins-file"></dl>
+      <h4>EXIF / Container</h4>
+      <dl id="ins-exif"></dl>
+      <h4>Timestamps</h4>
+      <dl id="ins-times"></dl>
+      <div class="ins-section-header">
+        <h4>Albums</h4>
+        <button id="ins-add-album" class="add-album" data-action="open-album-menu" title="Add this item to an album">+ Add to album…</button>
+      </div>
+      <div id="ins-albums" class="pill-list"></div>
+      <h4>Locations</h4>
+      <div id="ins-locs" class="pill-list"></div>
+      <h4>Source files</h4>
+      <dl id="ins-sources"></dl>
+    </div>
+  </aside>
+
+  <!-- Lightbox overlay -->
+  <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Media preview" tabindex="-1">
+    <div class="toolbar">
+      <span class="counter" id="lb-counter"></span>
+      <button class="nav-btn" id="lb-close" title="Close (Esc)" style="background: rgba(0,0,0,0.5); color: var(--fg); border: 1px solid rgba(255,255,255,0.1); width: 2.5rem; height: 2.5rem; border-radius: 50%; cursor: pointer;">×</button>
+    </div>
+    <button class="nav prev" id="lb-prev" title="Previous (←)">‹</button>
+    <div class="frame" id="lb-frame"></div>
+    <button class="nav next" id="lb-next" title="Next (→)">›</button>
+    <div class="hint">← → navigate · Esc close · Space play/pause</div>
+  </div>
+
+  <!-- Toast stack -->
+  <div class="toast-stack" id="toasts"></div>
+
+  <!-- Shortcut overlay (opened by `?`) -->
+  <div id="shortcut-overlay" class="shortcut-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="shortcut-title" tabindex="-1">
+    <div class="shortcut-panel">
+      <div class="shortcut-header">
+        <h2 id="shortcut-title">Keyboard shortcuts</h2>
+        <button class="shortcut-close" data-action="shortcut-close" title="Close (Esc)">×</button>
+      </div>
+      <table class="shortcut-table">
+        <tbody>
+          <tr><th colspan="2">Navigation</th></tr>
+          <tr><td><kbd>⌘</kbd>+<kbd>1</kbd></td><td>Library</td></tr>
+          <tr><td><kbd>⌘</kbd>+<kbd>2</kbd></td><td>Import</td></tr>
+          <tr><td><kbd>⌘</kbd>+<kbd>3</kbd></td><td>Settings</td></tr>
+          <tr><td><kbd>⌘</kbd>+<kbd>F</kbd></td><td>Focus search</td></tr>
+          <tr><td><kbd>⌘</kbd>+<kbd>O</kbd></td><td>Open import folder</td></tr>
+          <tr><td><kbd>?</kbd></td><td>This panel</td></tr>
+          <tr><th colspan="2">Library</th></tr>
+          <tr><td><kbd>←</kbd> <kbd>→</kbd> <kbd>↑</kbd> <kbd>↓</kbd></td><td>Move between photos</td></tr>
+          <tr><td><kbd>Enter</kbd> / <kbd>Space</kbd></td><td>Open inspector</td></tr>
+          <tr><td><kbd>⌘</kbd>+<kbd>I</kbd></td><td>Inspector for selected photo</td></tr>
+          <tr><th colspan="2">Overlays</th></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Close</td></tr>
+          <tr><td><kbd>←</kbd> <kbd>→</kbd></td><td>Lightbox prev / next</td></tr>
+          <tr><td><kbd>Space</kbd></td><td>Lightbox play / pause</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Album menu (popover, hidden by default) -->
+  <div id="album-menu" class="album-menu hidden"></div>
+
+  <!-- First-run wizard -->
+  <div id="wizard" class="wizard-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="wiz-title">
+    <div class="wizard">
+      <!-- Step 1: welcome -->
+      <div id="wiz-1" class="step">
+        <h2 id="wiz-title">Welcome to Recall</h2>
+        <p class="pitch">
+          Recall is a private, local-first photo and video library.
+          Your files stay on your Mac — no cloud, no account, no upload.
+        </p>
+        <div class="actions">
+          <button class="skip" data-action="wiz-skip">Skip setup</button>
+          <div class="right">
+            <button class="primary" id="wiz-1-next">Get started →</button>
+          </div>
+        </div>
+      </div>
+      <!-- Step 2: archive location -->
+      <div id="wiz-2" class="step hidden">
+        <h2>Where should Recall keep your archive?</h2>
+        <p class="pitch">
+          Recall stores your files under a single folder so you can back it up easily.
+          You can change this later in Settings.
+        </p>
+        <pre id="wiz-archive-path" class="path">…</pre>
+        <div class="actions">
+          <button class="skip" data-action="wiz-skip">Skip setup</button>
+          <div class="right">
+            <button class="secondary" id="wiz-2-change">Change…</button>
+            <button class="primary" id="wiz-2-next">Use this location →</button>
+          </div>
+        </div>
+      </div>
+      <!-- Step 3: sample seed -->
+      <div id="wiz-3" class="step hidden">
+        <h2>Try it out</h2>
+        <p class="pitch">
+          Generate 20 sample photos and videos so the library isn't empty while you look around.
+          You can delete them later — they're stored in the same archive.
+        </p>
+        <div class="actions">
+          <button class="skip" id="wiz-3-skip">Skip</button>
+          <div class="right">
+            <button class="secondary" id="wiz-3-seed">Try with 20 sample photos</button>
+            <button class="primary" id="wiz-3-next">Continue →</button>
+          </div>
+        </div>
+      </div>
+      <!-- Step 4: all set -->
+      <div id="wiz-4" class="step hidden">
+        <h2>You're all set</h2>
+        <p class="pitch">
+          Recall is now archiving to <code id="wiz-4-path">…</code>.
+          You can find it any time in the status bar at the bottom of the window — click it
+          to open the folder in Finder, or move it later from Settings.
+        </p>
+        <div class="actions">
+          <div class="right">
+            <button class="primary" id="wiz-4-done">Open the library →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Switch-archive modal: shown when the user picks a folder that
+       already looks like a Recall archive. -->
+  <div id="switch-archive-modal" class="switch-archive-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="switch-archive-title">
+    <div class="switch-archive">
+      <h3 id="switch-archive-title">This folder already has a Recall archive</h3>
+      <p class="pitch" id="switch-archive-pitch">
+        We found <code>archive.db</code> at this location. Do you want to open
+        this archive, or copy your current archive into it?
+      </p>
+      <pre id="switch-archive-path" class="path">…</pre>
+      <div class="actions">
+        <button class="secondary" id="switch-archive-cancel">Cancel</button>
+        <div class="right">
+          <button class="secondary" id="switch-archive-copy">Copy current into this folder</button>
+          <button class="primary" id="switch-archive-switch">Open this archive</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>

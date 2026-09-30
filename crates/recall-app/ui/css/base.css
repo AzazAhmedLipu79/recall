@@ -1,0 +1,33 @@
+/* Base — reset, body, typography, scrollbars.
+   Should not depend on layout — just the document root. */
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 14px;
+  overflow: hidden;
+}
+button { font: inherit; }
+input, select { font: inherit; min-width: 0; }
+a { color: var(--accent); text-decoration: none; }
+
+/* Visible focus ring — :focus-visible only triggers from keyboard,
+   not from mouse clicks. Uses a halo of --bg + accent so it reads
+   on both light and dark panels. */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+/* Honour reduced-motion preference: kill every transition/animation
+   so the UI feels instant for users who need it. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

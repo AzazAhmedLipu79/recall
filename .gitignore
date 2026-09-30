@@ -1,0 +1,40 @@
+# macOS noise
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor / IDE
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+.idea/
+
+# Rust / Cargo
+/target/
+**/target/
+**/*.rs.bk
+
+# Locked dependency file IS tracked (Cargo.lock)
+# but the generated `target/` tree is not.
+
+# Local archive state — never commit user data
+*.db
+*.db-shm
+*.db-wal
+archive.db*
+/archive.db*
+
+# Build outputs
+*.dmg
+*.app
+*.zip
+
+# Logs
+*.log
+logs/
+
+# OS metadata / secrets
+.env
+.env.*
+!.env.example

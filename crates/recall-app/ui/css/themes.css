@@ -1,0 +1,20 @@
+/* Themes — responsive tweaks and a placeholder for an upcoming
+   light theme. The current design is dark-only; themes.css is the
+   extension point. */
+
+@media (max-width: 720px) {
+  :root { --sidebar-w: 200px; }
+  .topbar .brand { display: none; }
+}
+
+/* Future: light theme via prefers-color-scheme: light. Toggled
+   from main.js once we have a theme switcher. The skeleton:
+
+   @media (prefers-color-scheme: light) {
+     :root {
+       --bg: #fafafa;
+       --panel: #ffffff;
+       ...
+     }
+   }
+*/

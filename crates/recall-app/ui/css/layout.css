@@ -1,0 +1,259 @@
+/* Layout — topbar, sidebar, main, statusbar, view shells, photo grid.
+   These define the structural CSS Grid of the application. */
+
+.app {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) minmax(0, 1fr);
+  grid-template-rows: var(--topbar-h) minmax(0, 1fr) var(--statusbar-h);
+  grid-template-areas:
+    "topbar topbar"
+    "sidebar main"
+    "statusbar statusbar";
+  height: 100vh;
+  width: 100vw;
+}
+
+/* --- Topbar --- */
+.topbar {
+  grid-area: topbar;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0 1rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  -webkit-app-region: drag;
+  min-width: 0;
+}
+.topbar .brand {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  -webkit-app-region: drag;
+}
+.topbar .brand img {
+  width: 28px;
+  height: 28px;
+  display: block;
+  flex-shrink: 0;
+}
+.topbar .brand .name {
+  line-height: 1;
+}
+.topbar .spacer { flex: 1; min-width: 0; }
+.topbar nav {
+  display: flex;
+  gap: 0.25rem;
+  -webkit-app-region: no-drag;
+}
+.topbar nav button {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid transparent;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.topbar nav button:hover { background: var(--panel-2); }
+.topbar nav button.active {
+  background: var(--accent);
+  color: white;
+}
+
+/* --- Sidebar --- */
+.sidebar {
+  grid-area: sidebar;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 0.75rem 0;
+  min-width: 0;
+}
+.sidebar h3 {
+  margin: 1rem 1rem 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.sidebar .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 0.75rem;
+}
+.sidebar .section-header h3 {
+  margin: 1rem 0.75rem 0.5rem;
+  flex: 1;
+}
+.sidebar .new-album {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid transparent;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.sidebar .new-album:hover {
+  background: var(--panel-2);
+  color: var(--fg);
+  border-color: var(--border);
+}
+.sidebar .section:first-of-type h3 { margin-top: 0.5rem; }
+.sidebar .nav-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.sidebar .nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  color: var(--fg);
+  border-left: 3px solid transparent;
+  gap: 0.5rem;
+}
+.sidebar .nav-item:hover { background: var(--panel-2); }
+.sidebar .nav-item.active {
+  background: var(--panel-2);
+  border-left-color: var(--accent);
+}
+.sidebar .nav-item .count {
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+.sidebar .nav-item .empty {
+  color: var(--muted-2);
+  font-style: italic;
+  font-size: 0.85rem;
+  padding: 0.25rem 1rem;
+}
+
+/* --- Main + statusbar --- */
+.main {
+  grid-area: main;
+  overflow-y: auto;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+}
+.statusbar {
+  grid-area: statusbar;
+  background: var(--panel);
+  border-top: 1px solid var(--border);
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+  min-width: 0;
+  overflow: hidden;
+}
+.statusbar .pill {
+  background: var(--panel-2);
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  white-space: nowrap;
+}
+.statusbar #status-archive {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* --- Views --- */
+.view { padding: 1.5rem; max-width: 1800px; margin: 0 auto; }
+.view h2 { margin: 0 0 1rem 0; font-weight: 600; }
+
+/* --- Search bar --- */
+.searchbar {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1rem;
+  min-width: 0;
+}
+.searchbar > * { min-width: 0; }
+.searchbar input[type="text"], .searchbar select {
+  background: var(--panel);
+  color: var(--fg);
+  border: 1px solid var(--border);
+  padding: 0.45rem 0.7rem;
+  border-radius: 6px;
+}
+.searchbar input[type="text"] { flex: 1 1 240px; min-width: 200px; }
+.searchbar input[type="number"] { width: 90px; flex: 0 0 90px; }
+.searchbar .btn-primary {
+  background: var(--accent);
+  color: white;
+  border: 1px solid var(--accent);
+  padding: 0.45rem 0.95rem;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.searchbar .btn-primary:hover { background: var(--accent-2); }
+.searchbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+/* --- Photo grid (Google-Photos-style packed layout) ---
+   Approach: fixed-aspect-ratio tiles in a uniform-column-width CSS
+   grid. Each tile has a per-row aspect ratio set inline (via the
+   --ratio CSS variable) so rows have varied heights — that's what
+   gives it the Google Photos "alive" feel without needing true
+   masonry (which Safari still doesn't support). Every tile takes
+   exactly one column, so packing is predictable. */
+.grid {
+  --col-w: 170px;
+  --gap: 4px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--col-w), 1fr));
+  grid-auto-rows: auto;              /* each row sizes to its tallest tile */
+  gap: var(--gap);
+  width: 100%;
+  max-width: 100%;
+}
+
+/* --- Empty / year-header --- */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 1rem;
+  color: var(--muted);
+  gap: 0.5rem;
+}
+.empty-state .hint { font-size: 0.9rem; }
+
+.year-header {
+  margin: 1rem 0 0.4rem 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 600;
+}

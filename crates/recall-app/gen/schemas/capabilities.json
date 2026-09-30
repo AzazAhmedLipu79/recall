@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"Default capability set for the Recall desktop app.","local":true,"windows":["main"],"permissions":["core:default","core:event:default","core:window:default","core:webview:default","core:app:default","dialog:default","store:default"]}}

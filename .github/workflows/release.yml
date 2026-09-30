@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Note: this workflow only runs tests + a release build verification.
+# Signed/notarised distribution is performed by an out-of-tree build
+# script that the maintainers run locally (or in a private CI), so no
+# Apple Developer secrets live in this repository.
+jobs:
+  test:
+    name: fmt + clippy + test
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry + target
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+
+      - name: cargo fmt --check
+        run: cargo fmt --all -- --check
+
+      - name: cargo clippy
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: cargo test
+        run: cargo test --workspace --all-targets
+
+  build:
+    name: cargo tauri build (unsigned)
+    runs-on: macos-latest
+    timeout-minutes: 60
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache cargo registry + target
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+
+      - name: Install tauri-cli
+        run: cargo install tauri-cli --version "^2" --locked
+
+      # Produces an unsigned .app + .dmg. The maintainer runbook for
+      # signing/notarisation lives in the external build script.
+      - name: cargo tauri build
+        run: cargo tauri build
+        env:
+          CI: "true"

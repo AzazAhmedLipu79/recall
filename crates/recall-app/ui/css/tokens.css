@@ -1,0 +1,26 @@
+/* Design tokens — every color, radius, spacing, and timing constant.
+   Imported first so every other stylesheet can reference vars. */
+
+:root {
+  --bg: #0d0d10;
+  --panel: #16161a;
+  --panel-2: #1d1d22;
+  --fg: #e8e8ec;
+  --muted: #8a8a92;
+  --muted-2: #5e5e66;
+  --accent: #6e8efb;
+  --accent-2: #4f6fd8;
+  --border: #2a2a30;
+  --border-2: #353540;
+  --danger: #f06464;
+  --success: #5cd17b;
+  --warn: #f0b264;
+  --shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.65);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --topbar-h: 56px;
+  --statusbar-h: 28px;
+  --sidebar-w: 240px;
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+}
